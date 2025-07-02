@@ -111,12 +111,6 @@ const RootLayout = () => {
     useEffect(() => {
         // تغيير عنوان الصفحة
         document.title = "Expense Tracker";
-
-        // تغيير favicon
-        const favicon = document.querySelector("link[rel='icon']");
-        if (favicon) {
-            favicon.href = "/e.jpg"; // 👈 الصورة الجديدة لازم تكون في مجلد `public`
-        }
     }, []);
 
 
