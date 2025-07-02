@@ -199,7 +199,6 @@ import { DialogPanel, DialogTitle } from '@headlessui/react';
 import { MdOutlineWarning } from 'react-icons/md';
 import Input from './ui/input';
 import { Button } from './ui/button';
-import Loading from './Loading';
 import { BiLoader } from 'react-icons/bi';
 import api from '../libs/apiCall';
 import { toast } from 'sonner';

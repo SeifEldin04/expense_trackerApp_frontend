@@ -3,13 +3,13 @@ import useStore from '../store'
 import { useForm } from 'react-hook-form';
 import api from '../libs/apiCall';
 import DialogWrapper from './wrappers/dialogWrapper';
-import Loading from './Loading';
 import { formatCurrency } from '../libs';
 import { MdOutlineWarning } from 'react-icons/md';
 import { DialogPanel, DialogTitle } from '@headlessui/react';
 import { toast } from 'sonner';
 import Input from './ui/input';
 import { Button } from './ui/button';
+import { FaSpinner } from 'react-icons/fa';
 
 const TransferMoney = ({ isOpen, setIsOpen, refetch }) => {
     const { user } = useStore((state) => state)
@@ -104,9 +104,11 @@ const TransferMoney = ({ isOpen, setIsOpen, refetch }) => {
                     Transfer Money to Account
                 </DialogTitle>
 
-                {isloading ? (
-                    <Loading />
-                ) : (
+                {isloading ? <>
+                    <div className='flex justify-center items-center py-2'>
+                        <FaSpinner className='animate-spin text-violet-600' size={28} />
+                    </div>
+                </> : (
                     <form onSubmit={handleSubmit(submitHandler)} className='space-y-4'>
 
                         <div className="flex flex-col gap-1 mb-2">

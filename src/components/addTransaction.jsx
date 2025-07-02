@@ -9,7 +9,7 @@ import { DialogPanel, DialogTitle } from '@headlessui/react';
 import { formatCurrency } from '../libs';
 import Input from './ui/input'
 import { Button } from './ui/button'
-import Loading from './Loading';
+import { FaSpinner } from 'react-icons/fa';
 
 
 const AddTransaction = ({ isOpen, setIsOpen, refetch }) => {
@@ -96,7 +96,11 @@ const AddTransaction = ({ isOpen, setIsOpen, refetch }) => {
                 </DialogTitle>
 
                 {isLoading ? (
-                    <Loading />
+                    <>
+                        <div className='flex justify-center items-center py-2'>
+                            <FaSpinner className='animate-spin text-violet-600' size={28} />
+                        </div>
+                    </>
                 ) : (
                     <form onSubmit={handleSubmit(submitHandler)} className="space-y-6">
                         <div className="flex flex-col gap-1 mb-2">
@@ -109,7 +113,7 @@ const AddTransaction = ({ isOpen, setIsOpen, refetch }) => {
                                 className="inputStyles"
                             >
                                 <option
-                                    
+
                                     value=""
                                     className='w-full flex items-center justify-center dark:bg-slate-900'
                                 >
