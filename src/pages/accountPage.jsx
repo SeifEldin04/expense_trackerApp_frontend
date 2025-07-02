@@ -5,7 +5,7 @@ import { GiCash } from 'react-icons/gi';
 import { RiVisaLine } from 'react-icons/ri';
 import api from '../libs/apiCall'
 import { toast } from 'sonner';
-import Loading from '../components/Loading'
+// import Loading from '../components/Loading'
 import Title from '../components/title';
 import { MdAdd, MdVerifiedUser } from 'react-icons/md';
 import AccountMenu from '../components/accountDialog';
@@ -86,9 +86,9 @@ const AccountPage = () => {
     }, [])
 
 
-    if (isLoading) {
-        return <Loading />
-    }
+    // if (isLoading) {
+    //     return <Loading />
+    // }
     return (
         <>
             <div className='py-10 w-full'>
