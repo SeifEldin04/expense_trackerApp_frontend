@@ -92,8 +92,8 @@
 
 import './App.css';
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
-import Signin from './pages/auth/signIn';
-import Signup from './pages/auth/signUp';
+import Signin from './pages/auth/signin';
+import Signup from './pages/auth/signup';
 import Dashboard from './pages/dashboard';
 import Transactions from './pages/transactions';
 import Settings from './pages/settings';
