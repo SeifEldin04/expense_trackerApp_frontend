@@ -7,18 +7,17 @@ import Title from '../components/title'
 import DataRange from '../components/dataRange'
 import { IoCheckmarkCircle, IoCheckmarkDoneCircle, IoSearchOutline } from 'react-icons/io5'
 import { MdAdd } from 'react-icons/md'
-import { exportToExcel } from 'react-json-to-excel';
 import { CiExport } from 'react-icons/ci'
 import { RiProgress3Line } from 'react-icons/ri'
 import { TiWarning } from 'react-icons/ti'
 import { formatCurrency } from '../libs'
 import ViewTransaction from '../components/viewTransaction'
 import AddTransaction from '../components/addTransaction'
-
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 
 const Transactions = () => {
     const [searchParams, setSearchParams] = useSearchParams()
-
     const [isOpen, setIsOpen] = useState(false)
     const [isOpenView, setIsOpenView] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
@@ -54,21 +53,14 @@ const Transactions = () => {
         const delayDebounce = setTimeout(() => {
             setIsLoading(true);
             fetchTransactions(search);
-        }, 400); // 400ms تأخير لمنع الضغط
+        }, 400);
 
         return () => clearTimeout(delayDebounce);
     }, [search]);
 
-
-
     const handleSearch = async (e) => {
         e.preventDefault();
-
-        setSearchParams({
-            df: startDate,
-            dt: endDate,
-        });
-
+        setSearchParams({ df: startDate, dt: endDate });
         setIsLoading(true);
         await fetchTransactions();
     }
@@ -78,6 +70,14 @@ const Transactions = () => {
         fetchTransactions();
     }, [startDate, endDate])
 
+    const exportToExcel = (data, filename = 'transactions.xlsx') => {
+        const worksheet = XLSX.utils.json_to_sheet(data);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Transactions');
+        const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+        const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+        saveAs(blob, filename);
+    };
 
     if (isLoading) return <Loading />
 
@@ -85,14 +85,11 @@ const Transactions = () => {
         <div className='w-full py-10'>
             <div className="flex flex-col md:flex-row md:items-center justify-between mb-10">
                 <Title title="Transactions Activity" />
-
                 <div className="flex flex-col md:flex-row md:items-center gap-4 mt-2">
                     <DataRange />
-
-                    <form onSubmit={(e) => handleSearch(e)}>
+                    <form onSubmit={handleSearch}>
                         <div className="w-full flex items-center gap-2 border border-gray-300 dark:border-gray-600 rounded-md px-2 py-2">
                             <IoSearchOutline className='text-xl text-gray-600 dark:text-gray-500' />
-
                             <input
                                 type="text"
                                 value={search}
@@ -100,10 +97,8 @@ const Transactions = () => {
                                 placeholder='Search Now...'
                                 className='outline-none group bg-transparent text-gray-700 dark:text-gray-400 placeholder:text-gray-600:'
                             />
-
                         </div>
                     </form>
-
                     <button
                         onClick={() => setIsOpen(true)}
                         className='py-1.5 px-2 rounded text-white bg-black dark:bg-violet-800 flex items-center justify-center gap-2'
@@ -111,11 +106,8 @@ const Transactions = () => {
                         <MdAdd size={22} />
                         <span>Pay</span>
                     </button>
-
                     <button
-                        onClick={() => {
-                            exportToExcel(data, `Transactions ${startDate}-${endDate}`)
-                        }}
+                        onClick={() => exportToExcel(data, `Transactions ${startDate}-${endDate}.xlsx`)}
                         className='flex items-center gap-2 text-black dark:text-gray-300'
                     >
                         Export <CiExport size={24} />
@@ -129,111 +121,57 @@ const Transactions = () => {
                         <span> No Transaction History</span>
                     </div>
                 ) : (
-                    <>
-                        <table className='w-full'>
-                            <thead className='w-full border-b border-gray-300 dark:border-gray-700'>
-                                <tr className='w-full text-black dark:text-gray-400 text-left'>
-                                    <th className='py-2'> Date </th>
-                                    <th className='py-2 px-2'> Description </th>
-                                    <th className='py-2 px-2'> Status </th>
-                                    <th className='py-2 px-2'> Source </th>
-                                    <th className='py-2 px-2'> Amount </th>
+                    <table className='w-full'>
+                        <thead className='w-full border-b border-gray-300 dark:border-gray-700'>
+                            <tr className='w-full text-black dark:text-gray-400 text-left'>
+                                <th className='py-2'> Date </th>
+                                <th className='py-2 px-2'> Description </th>
+                                <th className='py-2 px-2'> Status </th>
+                                <th className='py-2 px-2'> Source </th>
+                                <th className='py-2 px-2'> Amount </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {data?.map((item, index) => (
+                                <tr key={index} className='w-full border-b border-e-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-500'>
+                                    <td className='py-4'>
+                                        <p className='w-24 md:w-auto'>{new Date(item.createdat).toDateString()}</p>
+                                    </td>
+                                    <td className='py-4 px-2'>
+                                        <div className="flex flex-col w-56 md:w-auto">
+                                            <p className='text-base 2xl:text-lg text-black dark:text-gray-400 line-clamp-2'>{item.description}</p>
+                                        </div>
+                                    </td>
+                                    <td className='py-4 px-2'>
+                                        <div className="flex items-center gap-2">
+                                            {item.status === "pending" && <RiProgress3Line className='text-amber-600' size={24} />}
+                                            {item.status === "completed" && <IoCheckmarkDoneCircle className='text-emerald-600' size={24} />}
+                                            {item.status === "rejected" && <TiWarning className='text-red-600' size={24} />}
+                                            <span>{item?.status}</span>
+                                        </div>
+                                    </td>
+                                    <td className='py-4 px-2'>{item?.source}</td>
+                                    <td className='py-4 text-black dark:text-gray-400 text-base font-medium'>
+                                        <span className={`${item?.type === 'income' ? "text-emerald-600" : "text-red-600"} text-lg font-bold`}>
+                                            {item?.type === 'income' ? "+" : "-"}
+                                        </span>
+                                        {formatCurrency(item?.amount)}
+                                    </td>
+                                    <td className='py-4 px-2'>
+                                        <button onClick={() => handleViewTransaction(item)} className='outline-none text-violet-600 hover:underline'>
+                                            View
+                                        </button>
+                                    </td>
                                 </tr>
-                            </thead>
-
-                            <tbody>
-                                {data?.map((item, index) => (
-                                    <tr
-                                        key={index}
-                                        className='w-full border-b border-e-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-500'
-                                    >
-                                        <td className='py-4'>
-                                            <p
-                                                className='w-24 md:w-auto'
-                                            >
-                                                {new Date(item.createdat).toDateString()}
-                                            </p>
-                                        </td>
-
-                                        <td className='py-4 px-2'>
-                                            <div className="flex flex-col w-56 md:w-auto">
-                                                <p className='text-base 2xl:text-lg text-black dark:text-gray-400 line-clamp-2'>
-                                                    {item.description}
-                                                </p>
-                                            </div>
-                                        </td>
-
-                                        <td className='py-4 px-2'>
-                                            <div className="flex items-center gap-2">
-                                                {item.status === "pending" && (
-                                                    <RiProgress3Line
-                                                        className='text-amber-600'
-                                                        size={24}
-                                                    />
-                                                )}
-
-                                                {item.status === "completed" && (
-                                                    <IoCheckmarkDoneCircle
-                                                        className='text-emerald-600'
-                                                        size={24}
-                                                    />
-                                                )}
-
-                                                {item.status === "rejected" && (
-                                                    <TiWarning
-                                                        className='text-red-600'
-                                                        size={24}
-                                                    />
-                                                )}
-
-                                                <span> {item?.status} </span>
-                                            </div>
-                                        </td>
-
-                                        <td className='py-4 px-2'> {item?.source} </td>
-
-                                        <td className='py-4 text-black dark:text-gray-400 text-base font-medium'>
-                                            <span
-                                                className={`${item?.type === 'income'
-                                                    ? "text-emerald-600"
-                                                    : "text-red-600"
-                                                    } text-lg font-bold`}
-                                            >
-                                                {item?.type === 'income' ? "+" : "-"}
-                                            </span>
-
-                                            {formatCurrency(item?.amount)}
-                                        </td>
-
-                                        <td className='py-4 px-2'>
-                                            <button
-                                                onClick={() => handleViewTransaction(item)}
-                                                className='outline-none text-violet-600 hover:underline'
-                                            >
-                                                View
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </>
+                            ))}
+                        </tbody>
+                    </table>
                 )}
             </div>
         </div>
 
-        <ViewTransaction
-            data={selected}
-            isOpen={isOpenView}
-            setIsOpen={setIsOpenView}
-        />
-
-        <AddTransaction
-            isOpen={isOpen}
-            setIsOpen={setIsOpen}
-            refetch={fetchTransactions}
-            key={new Date().getTime()}
-        />
+        <ViewTransaction data={selected} isOpen={isOpenView} setIsOpen={setIsOpenView} />
+        <AddTransaction isOpen={isOpen} setIsOpen={setIsOpen} refetch={fetchTransactions} key={new Date().getTime()} />
     </>
 }
 
