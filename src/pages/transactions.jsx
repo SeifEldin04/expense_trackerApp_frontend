@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import api from '../libs/apiCall'
 import { toast } from 'sonner'
-import Loading from '../components/Loading'
 import Title from '../components/title'
 import DataRange from '../components/dataRange'
 import { IoCheckmarkCircle, IoCheckmarkDoneCircle, IoSearchOutline } from 'react-icons/io5'
@@ -15,6 +14,7 @@ import ViewTransaction from '../components/viewTransaction'
 import AddTransaction from '../components/addTransaction'
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
+import { FaSpinner } from 'react-icons/fa'
 
 const Transactions = () => {
     const [searchParams, setSearchParams] = useSearchParams()
@@ -79,7 +79,11 @@ const Transactions = () => {
         saveAs(blob, filename);
     };
 
-    if (isLoading) return <Loading />
+    if (isLoading) return <>
+        <div className='flex justify-center items-center py-2'>
+            <FaSpinner className='animate-spin text-violet-600' size={28} />
+        </div>
+    </>
 
     return <>
         <div className='w-full py-10'>

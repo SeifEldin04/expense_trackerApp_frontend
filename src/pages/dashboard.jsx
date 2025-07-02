@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import api from '../libs/apiCall'
 import { toast } from 'sonner'
-import Loading from '../components/Loading'
 import Info from '../components/info'
 import Stats from '../components/stats'
 import Chart from '../components/chart'
 import DoughnutChart from '../components/piechart'
 import RecentTransactions from '../components/recentTransactions'
 import Accounts from '../components/accounts'
+import { FaSpinner } from 'react-icons/fa'
 
 const Dashboard = () => {
     const [data, setData] = useState([])
@@ -44,7 +44,9 @@ const Dashboard = () => {
     if (isLoading)
         return (
             <div className='flex justify-center items-center w-full h-[80vh]'>
-                <Loading />
+                <div className='flex justify-center items-center py-2'>
+                    <FaSpinner className='animate-spin text-violet-600' size={28} />
+                </div>
             </div>
         )
 

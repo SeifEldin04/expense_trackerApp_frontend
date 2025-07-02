@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import useStore from '../store'
-import { FaBtc, FaPaypal } from 'react-icons/fa';
+import { FaBtc, FaPaypal, FaSpinner } from 'react-icons/fa';
 import { GiCash } from 'react-icons/gi';
 import { RiVisaLine } from 'react-icons/ri';
 import api from '../libs/apiCall'
 import { toast } from 'sonner';
-// import Loading from '../components/Loading'
 import Title from '../components/title';
 import { MdAdd, MdVerifiedUser } from 'react-icons/md';
 import AccountMenu from '../components/accountDialog';
@@ -86,9 +85,13 @@ const AccountPage = () => {
     }, [])
 
 
-    // if (isLoading) {
-    //     return <Loading />
-    // }
+    if (isLoading) {
+        return <>
+            <div className='flex justify-center items-center py-2'>
+                <FaSpinner className='animate-spin text-violet-600' size={28} />
+            </div>
+        </>
+    }
     return (
         <>
             <div className='py-10 w-full'>
